@@ -19,7 +19,7 @@ import {
   HStack,
   Radio,
 } from "@chakra-ui/react";
-import { FaUserAlt, FaLock } from "react-icons/fa";
+import { FaUserAlt, FaLock, FaEllipsisH } from "react-icons/fa";
 import PhoneInput from "../common/PhoneInput";
 import { useForm } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -27,6 +27,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
+// const CEdit =chakra(EditIcon);
 
 const Login = () => {
   const [userName, setUserName] = useState<string>("");
@@ -34,16 +35,20 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginstate, setLoginstate] = useState(true);
   var [userlocation, setUserLocation] = useState<string>("");
+  var [userPhoto, setUserPhoto] = useState<any>("");
+
+  const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const handleShowClick = () => setShowPassword(!showPassword);
   const handleRegister = () => {
     console.log("Register");
     setLoginstate(false);
   };
-
   const handleLogin = () => {
     if (userName === "Micheal" && password === "12345678") {
       alert("Welcome !!!");
+      setUserLoggedIn(true);
     } else {
       alert("Invalid Username or password");
     }
@@ -79,6 +84,16 @@ const Login = () => {
         Longitude: ${position.coords.longitude}`
     );
   };
+
+  const imgFilehandler = (e: any) => {
+    if (e.target.files.length !== 0) {
+      setUserPhoto((imgfile: any) => [
+        ...imgfile,
+        URL.createObjectURL(e.target.files[0]),
+      ]);
+    }
+  };
+
   return (
     <div>
       <Flex
@@ -95,10 +110,28 @@ const Login = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Avatar bg="#gray" />
-          <Heading color="#fff">Welcome</Heading>
+          <div>
+            {userLoggedIn ? (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Avatar bg="#gray" src={userPhoto} />
+
+                  <input type="file" onChange={imgFilehandler} />
+                </div>
+                <Heading color="#fff">Welcome</Heading>
+              </>
+            ) : (
+              ""
+            )}
+          </div>
           <Box minW={{ base: "90%", md: "468px" }}>
-            {loginstate ? (
+            {loginstate && !userLoggedIn ? (
               <form>
                 <Stack
                   spacing={4}
@@ -153,7 +186,7 @@ const Login = () => {
                   </Button>
                 </Stack>
               </form>
-            ) : (
+            ) : !userLoggedIn ? (
               <form onSubmit={handleSubmit(onSubmit)}>
                 <FormControl>
                   <FormLabel htmlFor="name">First name</FormLabel>
@@ -217,10 +250,12 @@ const Login = () => {
                   Back
                 </Button>
               </form>
+            ) : (
+              ""
             )}
           </Box>
         </Stack>
-        {loginstate ? (
+        {loginstate && !userLoggedIn ? (
           <Box>
             <span color="gray.300">New to us? </span>
 
